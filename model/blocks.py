@@ -10,7 +10,7 @@ class ResBlocks(nn.Module):
 
         model = []
         for i in range(n_blocks):
-            model += [ResBlock(nc, norm, activation, pad_type)]
+            model += [ResBlock(nc, nc, norm=norm, activation=activation, pad_type=pad_type)]
         self.model = nn.Sequential(*model)
 
     def forward(self, x):

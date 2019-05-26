@@ -72,8 +72,7 @@ class BaseModel():
     def to_cuda(self):
         for name in self.model_names:
             net = getattr(self, name)
-            net = torch.nn.DataParallel(net.cuda(), self.opt.gpu_ids)
-            setattr(self, name, net)
+            setattr(self, name, net.cuda())
 
     def update_lr(self):
         for scheduler in self.schedulers:
@@ -99,7 +98,7 @@ class BaseModel():
 
             print('saving the model to {}'.format(save_path))
             if len(self.opt.gpu_ids):
-                torch.save(net.module.cpu().state_dict(), save_path)
+                torch.save(net.cpu().state_dict(), save_path)
                 net.cuda()
             else:
                 torch.save(net.cpu().state_dict(), save_path)
@@ -154,3 +153,10 @@ class BaseModel():
     def trainid2color(self, label):
         color = torch.from_numpy(CITYSCAPE_PALETTE[label].transpose((2, 0, 1)))
         return color
+
+    def trainid2color_batch(self, label, batch_size):
+        colors = []
+        for b in range(batch_size):
+            color = self.trainid2color(label[b]).float() / 127.5 - 1.0
+            colors.append(color.unsqueeze(dim=0))
+        return colors

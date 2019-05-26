@@ -12,8 +12,11 @@ class MUNIT_semantic(BaseModel):
 
     def initialize(self, opt):
         BaseModel.initialize(self, opt)
+        self.style_dim = opt.style_dim
 
-        self.loss_names = ['gen', 'dis', 'gen_a', 'gen_b', 'dis_a', 'dis_b', 'clf']
+        self.loss_names = ['gen', 'dis', 'clf', 'gen_rec_a', 'gen_rec_b', 'gen_rec_s_a', 'gen_rec_s_b',
+                           'gen_rec_c_a', 'gen_rec_c_b', 'gen_cyc_a', 'gen_cyc_b', 'gen_adv_a', 'gen_adv_b',
+                           'gen_sem_a', 'gen_sem_b', 'dis_a', 'dis_b']
 
         # set generators
         self.model_names = ['gen_a', 'gen_b']
@@ -31,13 +34,14 @@ class MUNIT_semantic(BaseModel):
                                                 norm='none', activation='lrelu', pad_type='reflect', gan_type='lsgan')
 
             # set classifier
+            self.model_names += ['drn', 'clf', 'softmax']
             self.drn = networks.DRNC26(opt.input_nc, 'batch', 'relu', 'zero')
             self.clf = nn.Conv2d(self.drn.output_nc, opt.n_class, kernel_size=1, bias=True)
             self.softmax = nn.LogSoftmax()
 
             # set optimizers
             gen_params = list(self.gen_a.parameters()) + list(self.gen_b.parameters())
-            dis_params = list(self.dis_a.parameters()) + list(self.dis_b.paramsters())
+            dis_params = list(self.dis_a.parameters()) + list(self.dis_b.parameters())
             clf_params = list(self.drn.parameters()) + list(self.clf.parameters())
             # self.optimizer_G = torch.optim.Adam(gen_params, lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
             # self.optimizer_D = torch.optim.Adam(dis_params, lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
@@ -54,8 +58,8 @@ class MUNIT_semantic(BaseModel):
             self.criterion_clf = nn.NLLLoss2d(ignore_index=255)
 
             # random noise
-            self.s_a_rnd = torch.randn(opt.batch_size, self.style_dim, 1, 1).cuda()
-            self.s_b_rnd = torch.randn(opt.batch_size, self.style_dim, 1, 1).cuda()
+            self.s_a_rnd = torch.randn(opt.batch_size, opt.style_dim, 1, 1).cuda()
+            self.s_b_rnd = torch.randn(opt.batch_size, opt.style_dim, 1, 1).cuda()
 
     def criterion_rec(self, input, target):
         return torch.mean(torch.abs(input - target))
@@ -70,7 +74,9 @@ class MUNIT_semantic(BaseModel):
         self.image_a = src_data['image'].cuda()
         self.image_b = tgt_data['image'].cuda()
         self.label_a = src_data['label'].cuda()
-        self.label_b = tgt_data['label'].cuda()  # do not use for training
+        self.label_b = tgt_data['label']  # do not use for training
+        self.color_a = src_data['color']  # do not use for training
+        self.color_b = tgt_data['color']  # do not use for training
 
     def optimize_parameters(self):
         self.update_C()
@@ -91,8 +97,8 @@ class MUNIT_semantic(BaseModel):
         self.set_requires_grad([self.dis_a, self.dis_b], True)
         self.optimizer_D.zero_grad()
 
-        s_a_rnd = torch.randn(opt.batch_size, self.style_dim, 1, 1).cuda()
-        s_b_rnd = torch.randn(opt.batch_size, self.style_dim, 1, 1).cuda()
+        s_a_rnd = torch.randn(self.opt.batch_size, self.style_dim, 1, 1).cuda()
+        s_b_rnd = torch.randn(self.opt.batch_size, self.style_dim, 1, 1).cuda()
 
         # encode
         _, c_a = self.gen_a.encode(self.image_a)
@@ -114,8 +120,8 @@ class MUNIT_semantic(BaseModel):
         self.set_requires_grad([self.dis_a, self.dis_b, self.drn, self.clf], False)
         self.optimizer_G.zero_grad()
 
-        s_a_rnd = torch.randn(opt.batch_size, self.style_dim, 1, 1).cuda()
-        s_b_rnd = torch.randn(opt.batch_size, self.style_dim, 1, 1).cuda()
+        s_a_rnd = torch.randn(self.opt.batch_size, self.style_dim, 1, 1).cuda()
+        s_b_rnd = torch.randn(self.opt.batch_size, self.style_dim, 1, 1).cuda()
 
         # encode
         s_a, c_a = self.gen_a.encode(self.image_a)
@@ -147,8 +153,8 @@ class MUNIT_semantic(BaseModel):
         self.loss_gen_rec_b = self.criterion_rec(image_b_rec, self.image_b)
         self.loss_gen_rec_s_a = self.criterion_rec(s_a_rnd_rec, s_a_rnd)
         self.loss_gen_rec_s_b = self.criterion_rec(s_b_rnd_rec, s_b_rnd)
-        self.loss_gen_rec_c_a = self.criterion_rec(c_a_rnd_rec, c_a_rnd)
-        self.loss_gen_rec_c_b = self.criterion_rec(c_b_rnd_rec, c_b_rnd)
+        self.loss_gen_rec_c_a = self.criterion_rec(c_a_rec, c_a)
+        self.loss_gen_rec_c_b = self.criterion_rec(c_b_rec, c_b)
         self.loss_gen_cyc_a = self.criterion_rec(image_a_cyc, self.image_a)
         self.loss_gen_cyc_b = self.criterion_rec(image_b_cyc, self.image_b)
         self.loss_gen_adv_a = self.dis_a.calc_gen_loss(image_a_fake)
@@ -164,3 +170,42 @@ class MUNIT_semantic(BaseModel):
 
         self.loss_gen.backward()
         self.optimizer_G.step()
+
+    def sample(self):
+        self.eval_mode()
+
+        s_a_rnd = torch.randn(self.opt.batch_size, self.style_dim, 1, 1).cuda()
+        s_b_rnd = torch.randn(self.opt.batch_size, self.style_dim, 1, 1).cuda()
+
+        saved_image = [self.image_a.cpu(), self.image_b.cpu()]
+        with torch.no_grad():
+            # encode
+            s_a, c_a = self.gen_a.encode(self.image_a)
+            s_b, c_b = self.gen_b.encode(self.image_b)
+
+            # decode (reconstruction)
+            image_a_rec = self.gen_a.decode(s_a, c_a)
+            image_b_rec = self.gen_b.decode(s_b, c_b)
+            saved_image += [image_a_rec.cpu(), image_b_rec.cpu()]
+
+            # decode (translation)
+            image_a_fake1 = self.gen_a.decode(self.s_a_rnd, c_b)
+            image_b_fake1 = self.gen_b.decode(self.s_b_rnd, c_a)
+            image_a_fake2 = self.gen_a.decode(s_a_rnd, c_b)
+            image_b_fake2 = self.gen_b.decode(s_b_rnd, c_a)
+            saved_image += [image_b_fake1.cpu(), image_a_fake1.cpu(), image_b_fake2.cpu(), image_a_fake2.cpu()]
+
+            # prediction of fake image
+            pseudo_label_a = torch.max(self.classification(self.image_a), dim=1)[1]
+            pseudo_label_b = torch.max(self.classification(self.image_b), dim=1)[1]
+            label_fake_a = torch.max(self.classification(image_a_fake1), dim=1)[1]
+            label_fake_b = torch.max(self.classification(image_b_fake1), dim=1)[1]
+
+            saved_image += [self.color_a, self.color_b]
+            saved_image += self.trainid2color_batch(pseudo_label_a.cpu().detach(), self.opt.batch_size)
+            saved_image += self.trainid2color_batch(pseudo_label_b.cpu().detach(), self.opt.batch_size)
+            saved_image += self.trainid2color_batch(label_fake_a.cpu().detach(), self.opt.batch_size)
+            saved_image += self.trainid2color_batch(label_fake_b.cpu().detach(), self.opt.batch_size)
+
+        saved_image = torch.cat(saved_image, dim=0)
+        return saved_image

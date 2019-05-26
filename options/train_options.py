@@ -10,7 +10,7 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument('--sample_dir', type=str, default='./sample')
 
         # training loop
-        self.parser.add_argument('--batch_size', type=int, default=8)
+        self.parser.add_argument('--batch_size', type=int, default=1)
         self.parser.add_argument('--epoch', type=int, default=100)
         self.parser.add_argument('--epoch_decay', type=int, default=100)
 
