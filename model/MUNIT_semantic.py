@@ -74,9 +74,9 @@ class MUNIT_semantic(BaseModel):
         self.image_a = src_data['image'].cuda()
         self.image_b = tgt_data['image'].cuda()
         self.label_a = src_data['label'].cuda()
-        self.label_b = tgt_data['label']  # do not use for training
-        self.color_a = src_data['color']  # do not use for training
-        self.color_b = tgt_data['color']  # do not use for training
+        self.label_b = tgt_data['label']  # Not used in training
+        self.color_a = src_data['color']  # Not used in training
+        self.color_b = tgt_data['color']  # Not used in training
 
     def optimize_parameters(self):
         self.update_C()
