@@ -27,4 +27,7 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument('--lr', type=float, default=0.0001)
         self.parser.add_argument('--lr_policy', type=str, default='lambda')
 
+        # lambda
+        self.parser.add_argument('--lambda_rec', type=float, default=10.0)
+
         self.isTrain = True
