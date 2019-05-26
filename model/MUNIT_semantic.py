@@ -14,8 +14,12 @@ class MUNIT_semantic(BaseModel):
         BaseModel.initialize(self, opt)
         self.style_dim = opt.style_dim
 
-        self.loss_names = ['gen', 'dis', 'clf', 'gen_rec_a', 'gen_rec_b', 'gen_rec_s_a', 'gen_rec_s_b',
-                           'gen_rec_c_a', 'gen_rec_c_b', 'gen_cyc_a', 'gen_cyc_b', 'gen_adv_a', 'gen_adv_b',
+        # self.loss_names = ['gen', 'dis', 'clf', 'gen_rec_a', 'gen_rec_b', 'gen_rec_s_a', 'gen_rec_s_b',
+        #                    'gen_rec_c_a', 'gen_rec_c_b', 'gen_cyc_a', 'gen_cyc_b', 'gen_adv_a', 'gen_adv_b',
+        #                    'gen_sem_a', 'gen_sem_b', 'dis_a', 'dis_b']
+
+        self.loss_names = ['gen', 'dis', 'clf', 'gen_rec_a', 'gen_rec_b',
+                           'gen_cyc_a', 'gen_cyc_b', 'gen_adv_a', 'gen_adv_b',
                            'gen_sem_a', 'gen_sem_b', 'dis_a', 'dis_b']
 
         # set generators
@@ -151,19 +155,24 @@ class MUNIT_semantic(BaseModel):
         # compute generator losses
         self.loss_gen_rec_a = self.criterion_rec(image_a_rec, self.image_a)
         self.loss_gen_rec_b = self.criterion_rec(image_b_rec, self.image_b)
-        self.loss_gen_rec_s_a = self.criterion_rec(s_a_rnd_rec, s_a_rnd)
-        self.loss_gen_rec_s_b = self.criterion_rec(s_b_rnd_rec, s_b_rnd)
-        self.loss_gen_rec_c_a = self.criterion_rec(c_a_rec, c_a)
-        self.loss_gen_rec_c_b = self.criterion_rec(c_b_rec, c_b)
+        # self.loss_gen_rec_s_a = self.criterion_rec(s_a_rnd_rec, s_a_rnd)
+        # self.loss_gen_rec_s_b = self.criterion_rec(s_b_rnd_rec, s_b_rnd)
+        # self.loss_gen_rec_c_a = self.criterion_rec(c_a_rec, c_a)
+        # self.loss_gen_rec_c_b = self.criterion_rec(c_b_rec, c_b)
         self.loss_gen_cyc_a = self.criterion_rec(image_a_cyc, self.image_a)
         self.loss_gen_cyc_b = self.criterion_rec(image_b_cyc, self.image_b)
         self.loss_gen_adv_a = self.dis_a.calc_gen_loss(image_a_fake)
         self.loss_gen_adv_b = self.dis_b.calc_gen_loss(image_b_fake)
         self.loss_gen_sem_a = self.criterion_clf(pred_fake_a, self.label_a.long().squeeze(dim=1))
         self.loss_gen_sem_b = self.criterion_clf(pred_fake_b, pseudo_label_b)
+        # self.loss_gen = self.opt.lambda_rec * (self.loss_gen_rec_a + self.loss_gen_rec_b) + \
+        #                 self.loss_gen_rec_s_a + self.loss_gen_rec_s_b + \
+        #                 self.loss_gen_rec_c_a + self.loss_gen_rec_c_b + \
+        #                 self.opt.lambda_rec * (self.loss_gen_cyc_a + self.loss_gen_cyc_b) + \
+        #                 self.loss_gen_adv_a + self.loss_gen_adv_b + \
+        #                 self.loss_gen_sem_a + self.loss_gen_sem_b
+
         self.loss_gen = self.opt.lambda_rec * (self.loss_gen_rec_a + self.loss_gen_rec_b) + \
-                        self.loss_gen_rec_s_a + self.loss_gen_rec_s_b + \
-                        self.loss_gen_rec_c_a + self.loss_gen_rec_c_b + \
                         self.opt.lambda_rec * (self.loss_gen_cyc_a + self.loss_gen_cyc_b) + \
                         self.loss_gen_adv_a + self.loss_gen_adv_b + \
                         self.loss_gen_sem_a + self.loss_gen_sem_b
