@@ -19,8 +19,8 @@ class BaseOptions():
         # dataset
         self.parser.add_argument('--source_dataset', type=str, default='gta5')
         self.parser.add_argument('--target_dataset', type=str, default='bdd100k')
-        self.parser.add_argument('--source_dataroot', type=str, default='../datasets/gta5')
-        self.parser.add_argument('--target_dataroot', type=str, default='../datasets/bdd100k')
+        self.parser.add_argument('--source_dataroot', type=str, default='../../datasets/gta5')
+        self.parser.add_argument('--target_dataroot', type=str, default='../../datasets/bdd100k')
         self.parser.add_argument('--n_class', type=int, default=19)
 
         # data_loader

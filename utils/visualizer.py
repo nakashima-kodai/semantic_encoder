@@ -10,9 +10,9 @@ def show_loaded_image(image_A, image_B, nrow):
     grid_img = grid_img.numpy().transpose((1, 2, 0))
 
     plt.imshow(grid_img)
-    plt.pause(0.5)
-    plt.clf()
-    # plt.show()
+    # plt.pause(0.5)
+    # plt.clf()
+    plt.show()
 
 def save_image(opt, epoch, saved_image):
     saved_image = torchvision.utils.make_grid(saved_image.cpu(), nrow=2*opt.batch_size, padding=1, normalize=False)
