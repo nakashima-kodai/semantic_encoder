@@ -2,21 +2,21 @@ import os
 import torch
 from torch.utils import data
 from PIL import Image
-from data.base_dataset import BaseDataset, get_params, get_transform
-from data.image_folder import make_dataset
+from .base_dataset import BaseDataset, get_params, get_transform
+from .image_folder import make_dataset
 
 
 class BDD100KDataset(data.Dataset):
-    def __init__(self, opt, source=True):
+    def __init__(self, opt, is_source=True):
         self.opt = opt
-        dataroot = opt.source_dataroot if source else opt.target_dataroot
+        dataroot = opt.source_dataroot if is_source else opt.target_dataroot
         phase = 'train' if opt.isTrain else 'test'
 
         dir_img = os.path.join(dataroot, phase+'_img')
         dir_lbl = os.path.join(dataroot, phase+'_label')
 
-        self.paths_img = make_dataset(dir_img)
-        self.paths_lbl = make_dataset(dir_lbl)
+        self.paths_img = sorted(make_dataset(dir_img))
+        self.paths_lbl = sorted(make_dataset(dir_lbl))
 
     def name(self):
         return 'BDD100KDataset'

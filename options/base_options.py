@@ -11,15 +11,15 @@ class BaseOptions():
 
     def initialize(self):
         # experiment
-        self.parser.add_argument('--model', type=str, default='CycleGAN')
+        self.parser.add_argument('--model', type=str, default='MUNIT')
         self.parser.add_argument('--name', type=str, default='debug')
         self.parser.add_argument('--gpu_ids', type=str, default='0')
         self.parser.add_argument('--ckpt_dir', type=str, default='./ckpt')
 
         # dataset
-        self.parser.add_argument('--source_dataset', type=str, default='bdd100k')
+        self.parser.add_argument('--source_dataset', type=str, default='gta5')
         self.parser.add_argument('--target_dataset', type=str, default='bdd100k')
-        self.parser.add_argument('--source_dataroot', type=str, default='../datasets/bdd100k')
+        self.parser.add_argument('--source_dataroot', type=str, default='../datasets/gta5')
         self.parser.add_argument('--target_dataroot', type=str, default='../datasets/bdd100k')
         self.parser.add_argument('--n_class', type=int, default=19)
 
