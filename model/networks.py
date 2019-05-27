@@ -19,15 +19,15 @@ class Discriminator(nn.Module):
 
         self.downsample = nn.AvgPool2d(3, stride=2, padding=[1, 1], count_include_pad=False)
         self.cnns = nn.ModuleList()
-        for _ in range(self.n_scale):
+        for _ in range(n_scale):
             self.cnns.append(self.make_net())
 
     def make_net(self):
         ndf = self.ndf
 
-        cnn_x = [Conv2dBlock(self.input_nc, ndf, 4, 2, 1, norm='none', activation=self.activ, pad_type=self.pad_type)]
+        cnn_x = [Conv2dBlock(self.input_nc, ndf, 4, 2, 1, norm='none', activation=self.activation, pad_type=self.pad_type)]
         for i in range(self.n_layer - 1):
-            cnn_x += [Conv2dBlock(ndf, 2*ndf, 4, 2, 1, norm=self.norm, activation=self.activ, pad_type=self.pad_type)]
+            cnn_x += [Conv2dBlock(ndf, 2*ndf, 4, 2, 1, norm=self.norm, activation=self.activation, pad_type=self.pad_type)]
             ndf *= 2
         cnn_x += [nn.Conv2d(ndf, 1, 1, 1, 0)]
         cnn_x = nn.Sequential(*cnn_x)
@@ -102,7 +102,6 @@ class AdaINGen(nn.Module):
             if m.__class__.__name__ == "AdaptiveInstanceNorm2d":
                 mean = adain_params[:, :m.num_features]
                 std = adain_params[:, m.num_features:2*m.num_features]
-                print('adain_params: {}, mean: {}, std: {}'.format(adain_params.size(), mean.size(), std.size()))
                 m.bias = mean.contiguous().view(-1)
                 m.weight = std.contiguous().view(-1)
                 if adain_params.size(1) > 2*m.num_features:
@@ -158,9 +157,9 @@ class Decoder(nn.Module):
 
         model = [ResBlocks(input_nc, n_res, 'adain', activ, pad_type)]
         for i in range(n_up):
-            self.model += [upConv2dBlock(input_nc, input_nc//2, 5, 1, 2, norm, activ, pad_type)]
+            model += [upConv2dBlock(input_nc, input_nc//2, 5, 1, 2, norm, activ, pad_type)]
             input_nc //= 2
-        model += [Conv2dBlock(input_nc, output_nc 7, 1, 3, 'none', 'tanh', pad_type)]
+        model += [Conv2dBlock(input_nc, output_nc, 7, 1, 3, 'none', 'tanh', pad_type)]
         self.model = nn.Sequential(*model)
 
     def forward(self, x):

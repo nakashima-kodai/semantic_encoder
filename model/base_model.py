@@ -72,8 +72,7 @@ class BaseModel():
     def to_cuda(self):
         for name in self.model_names:
             net = getattr(self, name)
-            net = torch.nn.DataParallel(net.cuda(), self.opt.gpu_ids)
-            setattr(self, name, net)
+            setattr(self, name, net.cuda())
 
     def update_lr(self):
         for scheduler in self.schedulers:
@@ -99,7 +98,7 @@ class BaseModel():
 
             print('saving the model to {}'.format(save_path))
             if len(self.opt.gpu_ids):
-                torch.save(net.module.cpu().state_dict(), save_path)
+                torch.save(net.cpu().state_dict(), save_path)
                 net.cuda()
             else:
                 torch.save(net.cpu().state_dict(), save_path)
