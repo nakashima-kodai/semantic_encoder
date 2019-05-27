@@ -153,3 +153,10 @@ class BaseModel():
     def trainid2color(self, label):
         color = torch.from_numpy(CITYSCAPE_PALETTE[label].transpose((2, 0, 1)))
         return color
+
+    def trainid2color_batch(self, label, batch_size):
+        colors = []
+        for b in range(batch_size):
+            color = self.trainid2color(label[b]).float() / 127.5 - 1.0
+            colors.append(color.unsqueeze(dim=0))
+        return colors

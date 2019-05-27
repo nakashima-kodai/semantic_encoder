@@ -11,7 +11,7 @@ class BaseOptions():
 
     def initialize(self):
         # experiment
-        self.parser.add_argument('--model', type=str, default='MUNIT')
+        self.parser.add_argument('--model', type=str, default='MUNIT_semantic')
         self.parser.add_argument('--name', type=str, default='debug')
         self.parser.add_argument('--gpu_ids', type=str, default='0')
         self.parser.add_argument('--ckpt_dir', type=str, default='./ckpt')

@@ -10,7 +10,7 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument('--sample_dir', type=str, default='./sample')
 
         # training loop
-        self.parser.add_argument('--batch_size', type=int, default=4)
+        self.parser.add_argument('--batch_size', type=int, default=1)
         self.parser.add_argument('--epoch', type=int, default=100)
         self.parser.add_argument('--epoch_decay', type=int, default=100)
 
@@ -28,9 +28,9 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument('--lr_policy', type=str, default='lambda')
 
         # objective
-        self.parser.add_argument('--lambda_rec_image', type=float, default=10.0)
-        self.parser.add_argument('--lambda_rec_s', type=float, default=1.0)
-        self.parser.add_argument('--lambda_rec_c', type=float, default=1.0)
-        self.parser.add_argument('--lambda_adv', type=float, default=1.0)
+        self.parser.add_argument('--lambda_rec', type=float, default=10.0)
+        # self.parser.add_argument('--lambda_rec_s', type=float, default=1.0)
+        # self.parser.add_argument('--lambda_rec_c', type=float, default=1.0)
+        # self.parser.add_argument('--lambda_adv', type=float, default=1.0)
 
         self.isTrain = True
