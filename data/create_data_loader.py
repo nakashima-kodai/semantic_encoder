@@ -14,5 +14,5 @@ def create_dataloader(opt, is_source=True):
         raise ValueError('Dataset [%s] not recognized.' % (dataset_name))
 
     dataloader = data.DataLoader(dataset, batch_size=opt.batch_size, shuffle=not opt.no_shuffle, drop_last=True)
-    print('[%s] loader was created' % (dataset.name()))
+    print('[{}] loader was created. ({} images {} iterations)'.format(dataset.name(), len(dataset), len(dataloader)))
     return dataloader
