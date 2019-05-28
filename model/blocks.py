@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from . import utils
 from . import normalizations
 
@@ -36,7 +37,7 @@ class ResBlock2(nn.Module):
         model += [Conv2dBlock(input_nc, output_nc, 3, 1, dilation, norm, activation, pad_type, dilation=dilation)]
         model += [Conv2dBlock(output_nc, output_nc, 3, 1, dilation, norm, 'none', pad_type, dilation=dilation)]
         self.model = nn.Sequential(*model)
-        self.downsample = nn.Sequential(nn.Conv2d(input_nc, output_nc, kernel_size=1, stride=1, bias=False),
+        self.downsample = nn.Sequential(nn.Conv2d(input_nc, output_nc, kernel_size=1, stride=1, bias=True),
                                         nn.BatchNorm2d(output_nc))
 
     def forward(self, x):
@@ -52,7 +53,7 @@ class downResBlock(nn.Module):
         model += [Conv2dBlock(input_nc, output_nc, 3, 2, dilation, norm, activation, pad_type, dilation=dilation)]
         model += [Conv2dBlock(output_nc, output_nc, 3, 1, dilation, norm, 'none', pad_type, dilation=dilation)]
         self.model = nn.Sequential(*model)
-        self.downsample = nn.Sequential(nn.Conv2d(input_nc, output_nc, kernel_size=1, stride=2, bias=False),
+        self.downsample = nn.Sequential(nn.Conv2d(input_nc, output_nc, kernel_size=1, stride=2, bias=True),
                                         nn.BatchNorm2d(output_nc))
 
     def forward(self, x):
@@ -62,8 +63,7 @@ class downResBlock(nn.Module):
 
 class Conv2dBlock(nn.Module):
     def __init__(self, input_nc, output_nc, kernel_size, stride=1, padding=0,
-                 norm='none', activation='relu', pad_type='zero', dilation=1, bias=False):
-
+                 norm='none', activation='relu', pad_type='zero', dilation=1, bias=True):
         super(Conv2dBlock, self).__init__()
 
         padding = dilation if dilation != 1 else padding
@@ -83,18 +83,17 @@ class Conv2dBlock(nn.Module):
 
 class upConv2dBlock(nn.Module):
     def __init__(self, input_nc, output_nc, kernel_size, stride=1, padding=0,
-                 norm='none', activation='relu', pad_type='zero', bias=False):
+                 norm='none', activation='relu', pad_type='zero', bias=True):
         super(upConv2dBlock, self).__init__()
 
         self.pad = utils.get_pad_layer(padding, pad_type)
         self.norm = utils.get_norm_layer(output_nc, norm)
         self.activation = utils.get_activation_layer(activation)
 
-        self.up = nn.Upsample(scale_factor=2)
         self.conv = nn.Conv2d(input_nc, output_nc, kernel_size, stride, bias=bias)
 
     def forward(self, x):
-        x = self.up(x)
+        x = F.interpolate(x, scale_factor=2)
         x = self.conv(self.pad(x))
         if self.norm:
             x = self.norm(x)

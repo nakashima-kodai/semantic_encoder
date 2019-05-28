@@ -47,12 +47,12 @@ class MUNIT_semantic(BaseModel):
             gen_params = list(self.gen_a.parameters()) + list(self.gen_b.parameters())
             dis_params = list(self.dis_a.parameters()) + list(self.dis_b.parameters())
             clf_params = list(self.drn.parameters()) + list(self.clf.parameters())
-            # self.optimizer_G = torch.optim.Adam(gen_params, lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
-            # self.optimizer_D = torch.optim.Adam(dis_params, lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
-            self.optimizer_G = torch.optim.Adam([p for p in gen_params if p.requires_grad],
-                                                lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
-            self.optimizer_D = torch.optim.Adam([p for p in dis_params if p.requires_grad],
-                                                lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
+            self.optimizer_G = torch.optim.Adam(gen_params, lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
+            self.optimizer_D = torch.optim.Adam(dis_params, lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
+            # self.optimizer_G = torch.optim.Adam([p for p in gen_params if p.requires_grad],
+            #                                     lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
+            # self.optimizer_D = torch.optim.Adam([p for p in dis_params if p.requires_grad],
+            #                                     lr=opt.lr, betas=(opt.beta1, 0.999), weight_decay=opt.weight_decay)
             self.optimizer_C = torch.optim.SGD(clf_params, lr=0.01, momentum=0.9, weight_decay=opt.weight_decay)
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)

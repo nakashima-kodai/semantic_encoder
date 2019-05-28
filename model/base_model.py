@@ -83,12 +83,12 @@ class BaseModel():
     def eval_mode(self):
         for name in self.model_names:
             net = getattr(self, name)
-            net.eval()
+            setattr(self, name, net.eval())
 
     def train_mode(self):
         for name in self.model_names:
             net = getattr(self, name)
-            net.train()
+            setattr(self, name, net.train())
 
     def save_networks(self, epoch):
         for name in self.model_names:

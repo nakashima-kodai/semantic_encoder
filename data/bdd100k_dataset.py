@@ -28,7 +28,7 @@ class BDD100KDataset(data.Dataset):
         path_image = self.paths_image[index]
         image = Image.open(path_image).convert('RGB')
         params = get_params(self.opt, image.size)
-        transform_image = get_transform(self.opt, params)
+        transform_image = get_transform(self.opt, params, Image.BILINEAR)
         image = transform_image(image)
 
         # load label

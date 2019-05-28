@@ -117,7 +117,7 @@ class MUNIT(BaseModel):
         self.update_G()
         torch.cuda.synchronize()
 
-    def forward(self):
+    def sample(self):
         self.eval_mode()
 
         with torch.no_grad():
