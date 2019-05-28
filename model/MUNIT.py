@@ -83,7 +83,7 @@ class MUNIT(BaseModel):
         self.loss_gen_adv_src = self.dis_a.calc_gen_loss(fake_src)
         self.loss_gen_adv_tgt = self.dis_b.calc_gen_loss(fake_tgt)
         self.loss_gen = self.opt.lambda_rec * (self.loss_gen_rec_src + self.loss_gen_rec_tgt) + \
-                        self.loss_gen_rec_s_src + self.loss_gen_rec_c_src + \
+                        self.loss_gen_rec_s_src + self.loss_gen_rec_s_tgt + \
                         self.loss_gen_rec_c_src + self.loss_gen_rec_c_tgt + \
                         self.loss_gen_adv_src + self.loss_gen_adv_tgt
 

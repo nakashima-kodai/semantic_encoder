@@ -1,10 +1,13 @@
 import os
 import torch
-from tensorboardX import SummaryWriter
 from options.train_options import TrainOptions
 from data.create_data_loader import create_dataloader
 from model import create_model
 from utils import visualizer
+try:
+    from torch.utils.tensorboard import SummaryWriter
+except:
+    from tensorboardX import SummaryWriter
 
 
 opt = TrainOptions().parse()

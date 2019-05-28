@@ -12,7 +12,8 @@ class MUNIT_one_contentE(BaseModel):
     def initialize(self, opt):
         BaseModel.initialize(self, opt)
 
-        self.loss_names = ['gen', 'dis']
+        self.loss_names = ['gen', 'dis', 'gen_rec_src', 'gen_rec_tgt', 'gen_rec_s_src', 'gen_rec_s_tgt',
+                           'gen_rec_c_src', 'gen_rec_c_tgt', 'gen_adv_src', 'gen_adv_tgt', 'dis_src', 'dis_tgt']
 
         # set generators
         self.model_names = ['style_enc_src', 'style_enc_tgt', 'content_enc',
@@ -159,7 +160,7 @@ class MUNIT_one_contentE(BaseModel):
         self.loss_gen_adv_src = self.dis_src.calc_gen_loss(fake_src)
         self.loss_gen_adv_tgt = self.dis_tgt.calc_gen_loss(fake_tgt)
         self.loss_gen = self.opt.lambda_rec * (self.loss_gen_rec_src + self.loss_gen_rec_tgt) + \
-                        self.loss_gen_rec_s_src + self.loss_gen_rec_c_src + \
+                        self.loss_gen_rec_s_src + self.loss_gen_rec_s_tgt + \
                         self.loss_gen_rec_c_src + self.loss_gen_rec_c_tgt + \
                         self.loss_gen_adv_src + self.loss_gen_adv_tgt
 

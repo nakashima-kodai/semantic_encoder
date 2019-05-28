@@ -9,6 +9,11 @@ def create_model(opt):
         model = MUNIT_semantic()
         model.initialize(opt)
         model.setup()
+    elif opt.model == 'MUNIT_one_contentE':
+        from .MUNIT_one_contentE import MUNIT_one_contentE
+        model = MUNIT_one_contentE()
+        model.initialize(opt)
+        model.setup()
     else:
         raise NotImplementedError('model [{}] is not found'.format(opt.model))
 
